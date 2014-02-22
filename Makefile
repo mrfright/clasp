@@ -1,0 +1,30 @@
+CC=cc
+LFLAGS=-Wall -ansi -Wpedantic -Wextra -O $(DEBUG)
+CFLAGS=-c $(LFLAGS) 
+DEBUG=-g
+SOURCES=readline.c token.c parse.c
+MAINSOURCES=main.c $(SOURCES)
+OBJECTS=$(SOURCES:.c=.o)
+MAINOBJECTS=$(MAINSOURCES:.c=.o)
+EXECUTABLE=clasp
+TESTREAD=testread
+TESTTOKEN=testtoken
+TESTS=$(TESTREAD) $(TESTTOKEN)
+
+all: $(MAINSOURCES) $(EXECUTABLE) $(TESTS)
+
+clean:
+	rm *.o $(EXECUTABLE) $(TESTS)
+
+$(TESTREAD): $(TESTREAD).o $(OBJECTS)
+	$(CC) $(LFLAGS) -o $(TESTREAD) $(TESTREAD).o $(OBJECTS)
+
+$(TESTTOKEN): $(TESTTOKEN).o $(OBJECTS)
+	$(CC) $(LFLAGS) -o $(TESTTOKEN) $(TESTTOKEN).o $(OBJECTS)
+
+.SUFFIXES: .o .c
+.c.o:
+	$(CC) $(CFLAGS) $<
+
+$(EXECUTABLE): $(MAINOBJECTS)
+	$(CC) $(LFLAGS) $(MAINOBJECTS) -o $@
