@@ -4,8 +4,8 @@
 typedef struct tok Token;
 
 struct tok{
-	char *p;
-	Token *next;
+  char *p;
+  Token *next;
 };
 
 void putToken();

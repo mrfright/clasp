@@ -1,4 +1,5 @@
-
+#ifndef SEXPR
+#define SEXPR
 typedef struct sexpr Sexpr;
 
 struct sexpr{
@@ -6,3 +7,4 @@ struct sexpr{
 	Sexpr *inner;
 	Sexpr *next;
 }
+#endif /*SEXPR*/
