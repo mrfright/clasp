@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "token.h"
+#include "parse.h"
 
 
 void printToken(Token* token){
@@ -14,17 +15,26 @@ void printToken(Token* token){
   }
   printf("NULL\n");
 }
+
+void printSexpr(Sexpr* sexpr){
+  if(sexpr->atom!=NULL)
+    printf("%s", sexpr->atom);
+  else{
+    printSexpr(sexpr->inner);
+  }
+  printSexpr(sexpr->next);
+}
 int main(void){
   char *s="(one (two)three four) ";
   char c;
   while(c=*s++)
   	tokenize(c);
-  printToken(getHead()->next);
-  printf("tail=%d\n", getTail());
-  printf("head=%d\n", getHead());
-  deleteNext(getHead());
-  printToken(getHead()->next);
-  printf("tail=%d\n", getTail());
-  printf("head=%d\n", getHead());
+  printToken(getHeadToken()->next);
+  printf("tail=%d\n", getTailToken());
+  printf("head=%d\n", getHeadToken());
+  deleteNextToken(getHeadToken());
+  printToken(getHeadToken()->next);
+  printf("tail=%d\n", getTailToken());
+  printf("head=%d\n", getHeadToken());
   return 0;
 }

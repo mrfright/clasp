@@ -9,10 +9,10 @@ struct tok{
 };
 
 void putToken();
-Token *getHead();
-Token *getTail();
+Token *getHeadToken();
+Token *getTailToken();
 void tokenize(char c);
 
 Token *newToken(void);
-void deleteNext(Token *);
+void deleteNextToken(Token *);
 #endif /*TOKEN*/
