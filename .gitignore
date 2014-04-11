@@ -17,3 +17,7 @@
 *.out
 *.app
 *~
+clasp
+testread
+testtoken
+testtree
