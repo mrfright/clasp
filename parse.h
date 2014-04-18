@@ -2,7 +2,7 @@
 #define PARSE
 #include "sexpr.h"
 
-Sexpr* parse(Token* token);
+Sexpr* parse(Token** token);
 
 #endif /*PARSE*/
 

@@ -17,6 +17,10 @@ void printToken(Token* token){
 }
 
 void printSexpr(Sexpr* sexpr){
+  if(sexpr == NULL){
+    printf("\nnull sexpr trying to be printed\n");
+    return;
+  }
   if(sexpr->atom!=NULL)
     printf("%s", sexpr->atom);
   else{
@@ -30,6 +34,7 @@ int main(void){
   while(c=*s++)
   	tokenize(c);
   printToken(getHeadToken()->next);
+  printSexpr(parse(&(getHeadToken()->next)));
   printf("tail=%d\n", getTailToken());
   printf("head=%d\n", getHeadToken());
   deleteNextToken(getHeadToken());
