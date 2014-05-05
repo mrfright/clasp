@@ -18,14 +18,17 @@ void printToken(Token* token){
 
 void printSexpr(Sexpr* sexpr){
   if(sexpr == NULL){
-    printf("\nnull sexpr trying to be printed\n");
+    printf(" NIL ");
     return;
   }
   if(sexpr->atom!=NULL)
-    printf("%s", sexpr->atom);
+    printf(" %s ", sexpr->atom);
   else{
-    printSexpr(sexpr->inner);
+    printf("(");
+    printSexpr(sexpr->inner->next);/*next to skip linked list head*/
+    printf(")");
   }
+  printf("->");
   printSexpr(sexpr->next);
 }
 int main(void){
