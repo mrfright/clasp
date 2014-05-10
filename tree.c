@@ -2,13 +2,7 @@
 #include <string.h>/*for strcmp*/
 #include "tree.h"
 
-static Tree* root=NULL;
-
-Tree* getRoot(){
-  return root;
-}
-
-Tree* insertHelp(Tree* subroot, char* node, char* value){
+Tree* insert(Tree* subroot, char* node, char* value){
   if(subroot == NULL){/*insert here*/
     subroot = malloc(sizeof(Tree));
     subroot->node = node;
@@ -21,38 +15,34 @@ Tree* insertHelp(Tree* subroot, char* node, char* value){
     return subroot;
   }
   if(strcmp(node, subroot->node)<0)
-    subroot->left = insertHelp(subroot->left, node, value);
+    subroot->left = insert(subroot->left, node, value);
   else
-    subroot->right = insertHelp(subroot->right, node, value);
+    subroot->right = insert(subroot->right, node, value);
 
   return subroot;  
 }
-void insert(char* node, char* value){
-  root = insertHelp(root, node, value);
-}
 
-static Tree* findHelp(Tree* subroot, char* node){ 
+
+Tree* find(Tree* subroot, char* node){ 
   if(subroot == NULL)/*not found, return null*/
     return NULL;
+
   if(strcmp(node, subroot->node)<0)
-    return findHelp(subroot->left, node);
+    return find(subroot->left, node);
   if(strcmp(node, subroot->node)>0)
-    return findHelp(subroot->right, node);
+    return find(subroot->right, node);
   /*else found, return this*/
   return subroot;
 }
 
-Tree* find(char* node){
-  return findHelp(root, node);
-}
 
-static Tree* removeHelp(Tree* subroot, char* node){
+Tree* removeTreeNode(Tree* subroot, char* node){
   Tree* temp;
   if(subroot == NULL) return NULL;/*node not in tree*/
   else if(strcmp(node, subroot->node)<0)
-    subroot->left = removeHelp(subroot->left, node);
+    subroot->left = removeTreeNode(subroot->left, node);
   else if(strcmp(node, subroot->node)>0)
-    subroot->right = removeHelp(subroot->right, node);
+    subroot->right = removeTreeNode(subroot->right, node);
   else{/*found node to remove*/
     temp = subroot;
     if(subroot->left == NULL)/*no left, set to right*/
@@ -71,9 +61,6 @@ static Tree* removeHelp(Tree* subroot, char* node){
   return subroot;
 }
 
-void remove(char* node){
-  root = removeHelp(root, node);
-}
 
 void deleteNode(Tree* tree){
   if(tree != NULL){

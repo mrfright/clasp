@@ -2,7 +2,7 @@ CC=cc
 LFLAGS=-Wall -ansi -Wpedantic -Wextra -O $(DEBUG)
 CFLAGS=-c $(LFLAGS) 
 DEBUG=-g
-SOURCES=readline.c token.c parse.c tree.c
+SOURCES=readline.c token.c parse.c tree.c env.c
 MAINSOURCES=main.c $(SOURCES)
 OBJECTS=$(SOURCES:.c=.o)
 HEADERS=$(SOURCES:.c=.h)

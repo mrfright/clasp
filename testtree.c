@@ -22,10 +22,20 @@ void printTree(Tree* tree){
   printf("%s done\n", tree->node);
 }
 
+Tree* testRoot = NULL;
+void insertNode(char* node, char* value){
+  testRoot =  insert(testRoot, node, value);
+}
+
+Tree* findNode(char* node){
+  return find(testRoot, node);
+}
+
 int main(void){
   /*5, 3, 7, 4, 8, 6*/
   char* tmpNode, *five, *tmpVal, *fiveVal;
   Tree* min;
+  
   
   tmpNode="5";
   five=(char*)malloc(strlen(tmpNode)+1);
@@ -35,7 +45,7 @@ int main(void){
   fiveVal=(char*)malloc(strlen(tmpVal)+1);
   strcpy(fiveVal, tmpVal);
   printf("%s\n", fiveVal);
-  insert(five, fiveVal);
+  insertNode(five, fiveVal);
   
   tmpNode="3";
   five=(char*)malloc(strlen(tmpNode)+1);
@@ -45,7 +55,7 @@ int main(void){
   fiveVal=(char*)malloc(strlen(tmpVal)+1);
   strcpy(fiveVal, tmpVal);
   printf("%s\n", fiveVal);
-  insert(five, fiveVal);
+  insertNode(five, fiveVal);
   
   tmpNode="7";
   five=(char*)malloc(strlen(tmpNode)+1);
@@ -55,7 +65,7 @@ int main(void){
   fiveVal=(char*)malloc(strlen(tmpVal)+1);
   strcpy(fiveVal, tmpVal);
   printf("%s\n", fiveVal);
-  insert(five, fiveVal);
+  insertNode(five, fiveVal);
   
   tmpNode="4";
   five=(char*)malloc(strlen(tmpNode)+1);
@@ -65,7 +75,7 @@ int main(void){
   fiveVal=(char*)malloc(strlen(tmpVal)+1);
   strcpy(fiveVal, tmpVal);
   printf("%s\n", fiveVal);
-  insert(five, fiveVal);
+  insertNode(five, fiveVal);
   
   tmpNode="8";
   five=(char*)malloc(strlen(tmpNode)+1);
@@ -75,7 +85,7 @@ int main(void){
   fiveVal=(char*)malloc(strlen(tmpVal)+1);
   strcpy(fiveVal, tmpVal);
   printf("%s\n", fiveVal);
-  insert(five, fiveVal);
+  insertNode(five, fiveVal);
   
   tmpNode="6";
   five=(char*)malloc(strlen(tmpNode)+1);
@@ -85,8 +95,8 @@ int main(void){
   fiveVal=(char*)malloc(strlen(tmpVal)+1);
   strcpy(fiveVal, tmpVal);
   printf("%s\n", fiveVal);
-  insert(five, fiveVal);
-  printTree(getRoot());
+  insertNode(five, fiveVal);
+  printTree(testRoot);
   
   tmpNode = "8";
   five=(char*)malloc(strlen(tmpNode)+1);
@@ -96,22 +106,22 @@ int main(void){
   fiveVal=(char*)malloc(strlen(tmpVal)+1);
   strcpy(fiveVal, tmpVal);
   printf("%s\n", fiveVal);
-  insert(five, fiveVal);
-  printTree(getRoot());
+  insertNode(five, fiveVal);
+  printTree(testRoot);
   
   printf("\n\nfind 6\n\n");
-  printTree(find("6"));
+  printTree(findNode("6"));
   
   printf("\n\nfind 9 (not there)\n\n");
-  printTree(find("9"));
+  printTree(findNode("9"));
   
   printf("\n\ndelete min (3)\n\n");
-  printTree(deleteMin(getRoot(), &min));
+  printTree(deleteMin(testRoot, &min));
   printTree(min);
   printf("\n\nremove 7\n\n");
   remove("7");
-  printTree(getRoot());
-  deleteTree(getRoot());
+  printTree(testRoot);
+  deleteTree(testRoot);
  
   return 0;
 }

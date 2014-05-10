@@ -16,6 +16,10 @@
 *.exe
 *.out
 *.app
+
+# from Windows Cygwin
+*.exe.stackdump
+
 *~
 clasp
 testread

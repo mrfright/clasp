@@ -10,10 +10,11 @@ struct tree{
   Tree* right;/*right is greater than*/
 };
 
-Tree* getRoot();
-void insert(char* node, char* value);
-Tree* find(char* node);
+
+Tree* insert(Tree* subroot, char* node, char* value);
+Tree* find(Tree* root, char* node);
 Tree* deleteMin(Tree* subroot, Tree** min);
 void deleteTree(Tree* tree);
+Tree* removeTreeNode(Tree* subroot, char* node);
 
 #endif /*TREE*/
