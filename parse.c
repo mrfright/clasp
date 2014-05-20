@@ -79,7 +79,6 @@ Sexpr* parse(Token** tokenList){
 	  *tokenList = (*tokenList)->next;
     }
   }
-  printf("\nsexpr=%d\n", sexpr);
   return sexpr;
 }
 

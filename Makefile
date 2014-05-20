@@ -2,34 +2,25 @@ CC=cc
 LFLAGS=-Wall -ansi -Wpedantic -Wextra -O $(DEBUG)
 CFLAGS=-c $(LFLAGS) 
 DEBUG=-g
-SOURCES=readline.c token.c parse.c tree.c env.c
+SOURCES=readline.c token.c parse.c tree.c env.c eval.c
 MAINSOURCES=main.c $(SOURCES)
 OBJECTS=$(SOURCES:.c=.o)
 HEADERS=$(SOURCES:.c=.h)
 MAINOBJECTS=$(MAINSOURCES:.c=.o)
 EXECUTABLE=clasp
-TESTREAD=testread
-TESTTOKEN=testtoken
-TESTTREE=testtree
-TESTS=$(TESTREAD) $(TESTTOKEN) $(TESTTREE)
+TEST=test
 
-all: $(MAINSOURCES) $(EXECUTABLE) $(TESTS)
+all: $(MAINSOURCES) $(EXECUTABLE) $(TEST)
 
 clean:
-	rm *.o $(EXECUTABLE) $(TESTS)
+	rm *.o $(EXECUTABLE) $(TEST) *.exe *.exe.stackdump
 
 #used splint, kind of useless, crashed on /usr/include/ctype.h (don't know why it was looking at that)
 #lint: $(SOURCES) $(HEADERS)
 #	splint $(SOURCES) $(HEADERS)
 
-$(TESTREAD): $(TESTREAD).o $(OBJECTS)
-	$(CC) $(LFLAGS) -o $(TESTREAD) $(TESTREAD).o $(OBJECTS)
-
-$(TESTTOKEN): $(TESTTOKEN).o $(OBJECTS)
-	$(CC) $(LFLAGS) -o $(TESTTOKEN) $(TESTTOKEN).o $(OBJECTS)
-
-$(TESTTREE): $(TESTTREE).o $(OBJECTS)
-	$(CC) $(LFLAGS) -o $(TESTTREE) $(TESTTREE).o $(OBJECTS)
+$(TEST): $(TEST).o $(OBJECTS)
+	$(CC) $(LFLAGS) -o $(TEST) $(TEST).o $(OBJECTS)
 
 .SUFFIXES: .o .c
 .c.o:

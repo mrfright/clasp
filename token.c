@@ -34,6 +34,18 @@ void tokenize(char c){
 	}
 }
 
+void tokenizeStr(char *s){
+  char c;
+  deleteNextToken(head);
+  free(head);
+  head = NULL;
+  tail = NULL;
+  while((c=*s++))
+    tokenize(c);
+  if(*buf)
+    putToken();
+}
+
 Token *getHeadToken(void){return head;}
 Token *getTailToken(void){return tail;}
 
@@ -55,6 +67,8 @@ void putToken(void){
 }
 
 void deleteNextToken(Token *tok){
+  if(tok == NULL)
+    return;
   if(tok->next!=NULL)
     deleteNextToken(tok->next);
   free(tok->next);

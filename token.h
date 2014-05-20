@@ -12,6 +12,7 @@ void putToken();
 Token *getHeadToken();
 Token *getTailToken();
 void tokenize(char c);
+void tokenizeStr(char *s);
 
 Token *newToken(void);
 void deleteNextToken(Token *);

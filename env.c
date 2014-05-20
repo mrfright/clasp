@@ -1,4 +1,4 @@
-#include <stdlib.h> /*malloc*/
+#include <stdlib.h> /*malloc, NULL*/
 #include "env.h"
 
 Env* newEnv(Env* inner){
