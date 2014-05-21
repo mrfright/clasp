@@ -63,7 +63,36 @@ Sexpr* eval(Sexpr* s){
     result += atof(operand->atom);
     resultSexpr = newSexpr();
     resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
-    /*(char*)malloc(strlen(tmpNode)+1)*/
+    sprintf(resultSexpr->atom,"%f",result);
+    return resultSexpr;
+  }
+  else if(!strcmp(op->atom, "-")){
+    operand = eval(op->next);
+    result = atof(operand->atom);
+    operand = eval(op->next->next);
+    result -= atof(operand->atom);
+    resultSexpr = newSexpr();
+    resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
+    sprintf(resultSexpr->atom,"%f",result);
+    return resultSexpr;
+  }
+  else if(!strcmp(op->atom, "*")){
+    operand = eval(op->next);
+    result = atof(operand->atom);
+    operand = eval(op->next->next);
+    result *= atof(operand->atom);
+    resultSexpr = newSexpr();
+    resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
+    sprintf(resultSexpr->atom,"%f",result);
+    return resultSexpr;
+  }
+  else if(!strcmp(op->atom, "/")){
+    operand = eval(op->next);
+    result = atof(operand->atom);
+    operand = eval(op->next->next);
+    result /= atof(operand->atom);
+    resultSexpr = newSexpr();
+    resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
     sprintf(resultSexpr->atom,"%f",result);
     return resultSexpr;
   }
