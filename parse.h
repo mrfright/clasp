@@ -4,7 +4,6 @@
 #include "token.h"
 
 Sexpr* newSexpr(void);
-Sexpr* parse(Token** token);
+Sexpr* parseStr(char* s);
 
 #endif /*PARSE*/
-

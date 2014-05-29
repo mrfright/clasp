@@ -5,23 +5,6 @@
 #include <stdio.h>
 #include <string.h>/*for strcmp test, strlen, str copy?*/
 
-/*
-parse(token list)
-  if no chars (strlen zero) then error - print and exit
-  token = pop a token off passed in list
-  if token is '('
-    start a new sexpr
-    while next token not ')'
-      append to sexpr's list parse(rest of tokens)
-    pop token (throw away that ')')
-    return that sexpr list
-  else if token is ')' then error unexpected
-  else return sexpr atom
-*/
-
-static Sexpr *head = NULL;/*static, so only visible to this compilation unit*/
-static Sexpr *tail = NULL;
-
 Sexpr* newSexpr(void){
   Sexpr* sexpr = (Sexpr*)malloc(sizeof(Sexpr));
   sexpr->inner = NULL;
@@ -30,21 +13,8 @@ Sexpr* newSexpr(void){
   return sexpr;
 }
 
-Sexpr* makeSexprHead(void){
-  head = newSexpr();
-  head->atom = "HEAD";
-  tail=head;
-  return head;
-}
-
-void addSexpr(Sexpr* sexpr){
-  tail->next = sexpr;
-  tail = tail->next;
-}
-
 Sexpr* parse(Token** tokenList){
   Sexpr* sexpr = NULL;
-  Sexpr* addNext = NULL;
   Sexpr* addTail = NULL;
   Token* popToken = NULL;
   if(*tokenList == NULL) printf("\nunexpected end of tokens\n");/*what about whole expression is an empty list? what if just "()"? */
@@ -82,4 +52,13 @@ Sexpr* parse(Token** tokenList){
   return sexpr;
 }
 
-
+Sexpr* parseStr(char* s){
+  Token* tokens;
+  Token* originalTokens;
+  Sexpr* sexpr;
+  originalTokens = tokens = tokenizeStr(s);  
+  sexpr = parse(&(tokens->next));
+  deleteNextToken(originalTokens);
+  free(originalTokens);
+  return sexpr;
+}

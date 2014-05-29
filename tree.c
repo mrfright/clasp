@@ -2,15 +2,17 @@
 #include <string.h>/*for strcmp*/
 #include "tree.h"
 
-Tree* insert(Tree* subroot, char* node, char* value){
+Tree* insert(Tree* subroot, char* node, Sexpr* value){
   if(subroot == NULL){/*insert here*/
     subroot = malloc(sizeof(Tree));
     subroot->node = node;
     subroot->value = value;
+    subroot->left = NULL;
+    subroot->right = NULL;
     return subroot;
   }
   if(strcmp(node, subroot->node)==0){/*found node, just update*/
-    free(subroot->value);
+    deleteSexpr(subroot->value);
     subroot->value=value;
     return subroot;
   }
@@ -53,7 +55,7 @@ Tree* removeTreeNode(Tree* subroot, char* node){
       subroot->right = deleteMin(subroot->right, &temp);
        free(subroot->node);
        subroot->node = temp->node;
-       free(subroot->value);
+       deleteSexpr(subroot->value);
        subroot->value = temp->value;
        free(temp);
     }

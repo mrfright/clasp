@@ -34,20 +34,16 @@ void tokenize(char c){
 	}
 }
 
-void tokenizeStr(char *s){
+Token* tokenizeStr(char *s){
   char c;
-  deleteNextToken(head);
-  free(head);
   head = NULL;
   tail = NULL;
   while((c=*s++))
     tokenize(c);
   if(*buf)
     putToken();
+  return head;
 }
-
-Token *getHeadToken(void){return head;}
-Token *getTailToken(void){return tail;}
 
 Token *newToken(void){
 	Token *token = (Token*)malloc(sizeof(Token));
