@@ -160,6 +160,68 @@ Sexpr* eval(Sexpr* s, Env* env){
     strcpy(resultSexpr->atom,bool);
     return resultSexpr;
   }
+  else if(op->atom != NULL && !strcmp(op->atom, "eq?")){
+    operand = eval(op->next, env);
+    
+    if(operand->atom != NULL){
+      result = atof(operand->atom);
+      operand = eval(op->next->next, env);
+      result2 = atof(operand->atom);
+      bool = result == result2 ? "True" : "False";
+    }
+    else
+      bool = operand->inner->next == NULL && op->next->next->inner->next == NULL ? "True" : "False";
+    
+    resultSexpr = newSexpr();
+    resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
+    strcpy(resultSexpr->atom,bool);
+    return resultSexpr;
+  }
+  else if(op->atom != NULL && !strcmp(op->atom, "atom?")){
+    operand = eval(op->next, env);    
+    bool = operand->atom != NULL ? "True" : "False";
+    resultSexpr = newSexpr();
+    resultSexpr->atom=(char*)malloc(10);
+    strcpy(resultSexpr->atom,bool);
+    return resultSexpr;
+  }
+  else if(op->atom != NULL && !strcmp(op->atom, "null?")){
+    operand = eval(op->next, env);    
+    bool = operand == NULL ? "True" : "False";
+    resultSexpr = newSexpr();
+    resultSexpr->atom=(char*)malloc(10);
+    strcpy(resultSexpr->atom,bool);
+    return resultSexpr;
+  }
+  else if(op->atom != NULL && !strcmp(op->atom, "car")){
+    operand = eval(op->next, env)->inner->next;    
+    operand->next = NULL;
+    return operand;
+  }
+  else if(op->atom != NULL && !strcmp(op->atom, "cdr")){
+    operand = eval(op->next, env)->inner->next->next;    
+    return operand;
+  }
+  else if(op->atom != NULL && !strcmp(op->atom, "cond")){
+    operand = op->next;
+    while(operand){
+      if(!strcmp(eval(operand->inner->next, env)->atom, "True"))
+        return eval(operand->inner->next->next, env);
+      operand = operand->next;
+    }
+    return NULL;
+  }
+  else if(op->atom != NULL && !strcmp(op->atom, "cons")){
+    operand = eval(op->next, env); 
+    setSexpr = eval(op->next->next, env)->inner->next;
+    resultSexpr = newSexpr();
+    resultSexpr->inner = newSexpr();
+    resultSexpr->inner->atom=(char*)malloc(10);
+    strcpy(resultSexpr->inner->atom, "HEAD");
+    resultSexpr->inner->next = operand;
+    resultSexpr->inner->next->next = setSexpr;
+    return resultSexpr;
+  }
   else if(op->atom != NULL && !strcmp(op->atom, "quote")){
     return op->next;
   }

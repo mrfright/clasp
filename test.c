@@ -142,7 +142,6 @@ int main(void){
   assert(strcmp(findEnv(outerEnv, "node2")->atom, "value2") == 0 && "finding node in outer env that is actually in inner env (should be 'value2')");
   assert(strcmp(findEnv(outerEnv, "node3")->atom, "value3") == 0 && "findnig node in outer env that should be in outer (should be 'value3')");
 
-
   
   tmpNode="5";
   five=(char*)malloc(strlen(tmpNode)+1);
@@ -224,13 +223,6 @@ int main(void){
   assert(!is_float("1a") && "is_float should be false for '1a'");
   assert(is_float("-1.0") && "is_float should be true for '-1.0'");
   
-  
-  
-  
-  /*head is null at this point, so can't do this*/
-  /*printToken(tokenizeStr("")->next);*/
-  
-  
   printToken(tokenizeStr("1")->next);
   printToken( tokenizeStr("1.0")->next);
 
@@ -294,9 +286,5 @@ int main(void){
   eval(parseStr("(define average (lambda (x y) (* 0.5 (+ x y))))"), e);
   sexpr = eval(parseStr("(sqrt 2.0)"), e);
   printSexpr(sexpr);
-  /*eval(parseStr(""), e);*/
-
-  
-  
   return  0;
 }
