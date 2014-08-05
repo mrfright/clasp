@@ -28,34 +28,8 @@ void testTokenize(char c){
 
 
 
-void printToken(Token* token){
-  if(token!=NULL){
-	while(token!=NULL){
-      printf("%s", token->p);
-      token=token->next;
-      if(token!=NULL)
-        printf("->");
-    }
-    printf("->");
-  }
-  printf("NULL\n");
-}
 
-void printSexpr(Sexpr* sexpr){
-  if(sexpr == NULL){
-    printf(" NIL ");
-    return;
-  }
-  if(sexpr->atom!=NULL)
-    printf(" %s ", sexpr->atom);
-  else{
-    printf("(");
-    printSexpr(sexpr->inner->next);/*next to skip linked list head*/
-    printf(")");
-  }
-  printf("->");
-  printSexpr(sexpr->next);
-}
+
 
 
 
@@ -285,6 +259,15 @@ int main(void){
   eval(parseStr("(define improve (lambda (guess x) (average guess (/ x guess))))"), e);
   eval(parseStr("(define average (lambda (x y) (* 0.5 (+ x y))))"), e);
   sexpr = eval(parseStr("(sqrt 2.0)"), e);
+  printf("\n");
   printSexpr(sexpr);
+  printf("\ntest atom:\n");
+  printf(get_atom(sexpr));
+  printf("\ntest create_inner, should be an empty list ()\n");
+  sexpr = newSexpr();
+  create_inner(sexpr);
+  printSexpr(sexpr);
+  printf("\ncopy of '(one (two)three four)'\n");
+  printSexpr(copy_sexpr(parseStr("(one (two)three four)")));
   return  0;
 }

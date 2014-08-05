@@ -8,6 +8,7 @@ struct tok{
   Token *next;
 };
 
+void printToken(Token* token);
 Token* tokenizeStr(char *s);
 
 Token *newToken(void);

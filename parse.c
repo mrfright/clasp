@@ -5,14 +5,6 @@
 #include <stdio.h>
 #include <string.h>/*for strcmp test, strlen, str copy?*/
 
-Sexpr* newSexpr(void){
-  Sexpr* sexpr = (Sexpr*)malloc(sizeof(Sexpr));
-  sexpr->inner = NULL;
-  sexpr->next = NULL;
-  sexpr->atom = NULL;
-  return sexpr;
-}
-
 Sexpr* parse(Token** tokenList){
   Sexpr* sexpr = NULL;
   Sexpr* addTail = NULL;

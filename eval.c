@@ -32,21 +32,7 @@ int is_float(char* s){
   return result;
 }
 
-void printEvalSexpr(Sexpr* sexpr){
-  if(sexpr == NULL){
-    printf(" NIL ");
-    return;
-  }
-  if(sexpr->atom!=NULL)
-    printf(" %s ", sexpr->atom);
-  else{
-    printf("(");
-    printSexpr(sexpr->inner->next);/*next to skip linked list head*/
-    printf(")");
-  }
-  printf("->");
-  printSexpr(sexpr->next);
-}
+
 
 void printEvalTree(Tree* tree){
   if(tree == NULL){
@@ -69,6 +55,37 @@ void printEvalTree(Tree* tree){
   /*printf("%s done\n", tree->node);*/
 }
 
+/*
+void create_atom_from_int(Sexpr* s, int atom){
+  if(s->atom != NULL)
+    printf("\nSetting non-null atom to value %d\n", atom);
+  s->atom=(char*)malloc(20);
+  sprintf(s->atom,"%d",atom);
+}
+
+void create_atom_from_float(Sexpr* s, float atom){
+  if(s->atom != NULL)
+    printf("\nSetting non-null atom to value %f\n", atom);
+  s->atom=(char*)malloc(20);
+  sprintf(s->atom,"%f",atom);
+}
+
+void create_atom(Sexpr* s, char* atom){
+  if(s->atom != NULL)
+    printf("\nSetting non-null atom to value %s\n", atom);
+  s->atom=(char*)malloc(strlen(atom) + 10);
+  strcpy(s->atom,atom);
+}
+
+Sexpr* copy_sexpr(Sexpr* s){
+  Sexpr* copys = NULL;
+  if(s != NULL){
+    /*copy atom if there
+    /*copy inner if there
+  }
+  return copys;
+}*/
+
 Sexpr* eval(Sexpr* s, Env* env){
   Sexpr* op;
   Sexpr* operand;
@@ -87,131 +104,141 @@ Sexpr* eval(Sexpr* s, Env* env){
   Env* innerEnv;
   Env* printEnv;
   
-  if(s->atom != NULL){
-    if(is_int(s->atom) || is_float(s->atom))
+  
+  if(get_atom(s) != NULL){
+    if(is_int(get_atom(s)) || is_float(get_atom(s)))
       return s;
     else{
-      return eval(findEnv(env, s->atom), env->inner) ;
+      return eval(findEnv(env, get_atom(s)), env->inner) ;
     }
   }
   /*TODO NULL checks!*/
   op = s->inner->next;
   
-  if(op->atom != NULL && !strcmp(op->atom, "+")){
+  if(get_atom(op) != NULL && !strcmp(get_atom(op), "+")){
     operand = eval(op->next, env);
-    result = atof(operand->atom);
+    result = atof(get_atom(operand));
     operand = eval(op->next->next, env);
-    result += atof(operand->atom);
+    result += atof(get_atom(operand));
     resultSexpr = newSexpr();
-    resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
-    sprintf(resultSexpr->atom,"%f",result);
+    /*resultSexpr->atom=(char*)malloc(strlen(get_atom(operand)) + 10);
+    sprintf(get_atom(resultSexpr),"%f",result);*/
+    create_atom_from_float(resultSexpr, result);
     return resultSexpr;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "-")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "-")){
     operand = eval(op->next, env);
-    result = atof(operand->atom);
+    result = atof(get_atom(operand));
     operand = eval(op->next->next, env);
-    result -= atof(operand->atom);
+    result -= atof(get_atom(operand));
     resultSexpr = newSexpr();
-    resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
-    sprintf(resultSexpr->atom,"%f",result);
+    /*resultSexpr->atom=(char*)malloc(strlen(get_atom(operand)) + 10);
+    sprintf(get_atom(resultSexpr),"%f",result);*/
+    create_atom_from_float(resultSexpr, result);
     return resultSexpr;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "*")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "*")){
     operand = eval(op->next, env);
-    result = atof(operand->atom);
+    result = atof(get_atom(operand));
     operand = eval(op->next->next, env);
-    result *= atof(operand->atom);
+    result *= atof(get_atom(operand));
     resultSexpr = newSexpr();
-    resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
-    sprintf(resultSexpr->atom,"%f",result);
+    /*resultSexpr->atom=(char*)malloc(strlen(get_atom(operand)) + 10);
+    sprintf(resultSexpr->atom,"%f",result);*/
+    create_atom_from_float(resultSexpr, result);
     return resultSexpr;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "/")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "/")){
     operand = eval(op->next, env);
-    result = atof(operand->atom);
+    result = atof(get_atom(operand));
     operand = eval(op->next->next, env);
-    result /= atof(operand->atom);
+    result /= atof(get_atom(operand));
     resultSexpr = newSexpr();
-    resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
-    sprintf(resultSexpr->atom,"%f",result);
+    /*resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
+    sprintf(resultSexpr->atom,"%f",result);*/
+    create_atom_from_float(resultSexpr, result);
     return resultSexpr;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, ">")){
-    printEvalSexpr(op->next);
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), ">")){
+    printSexpr(op->next);
     operand = eval(op->next, env);
-    result = atof(operand->atom);
+    result = atof(get_atom(operand));
     operand = eval(op->next->next, env);
-    result2 = atof(operand->atom);
+    result2 = atof(get_atom(operand));
     bool = result > result2 ? "True" : "False";
     resultSexpr = newSexpr();
-    resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
-    strcpy(resultSexpr->atom,bool);
+    /*resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
+    strcpy(resultSexpr->atom,bool);*/
+    create_atom(resultSexpr, bool);
     return resultSexpr;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "<")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "<")){
     operand = eval(op->next, env);
-    result = atof(operand->atom);
+    result = atof(get_atom(operand));
     operand = eval(op->next->next, env);
-    result2 = atof(operand->atom);
+    result2 = atof(get_atom(operand));
     bool = result < result2 ? "True" : "False";
     resultSexpr = newSexpr();
-    resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
-    strcpy(resultSexpr->atom,bool);
+    /*resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
+    strcpy(resultSexpr->atom,bool);*/
+    create_atom(resultSexpr, bool);
     return resultSexpr;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "eq?")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "eq?")){
     operand = eval(op->next, env);
-    
-    if(operand->atom != NULL){
-      result = atof(operand->atom);
+    /*shouldn't be comparing floats*/
+    if(get_atom(operand) != NULL){
+      result = atof(get_atom(operand));
       operand = eval(op->next->next, env);
-      result2 = atof(operand->atom);
+      result2 = atof(get_atom(operand));
       bool = result == result2 ? "True" : "False";
     }
     else
       bool = operand->inner->next == NULL && op->next->next->inner->next == NULL ? "True" : "False";
     
     resultSexpr = newSexpr();
-    resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
-    strcpy(resultSexpr->atom,bool);
+    /*resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
+    strcpy(resultSexpr->atom,bool);*/
+    create_atom(resultSexpr, bool);
     return resultSexpr;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "atom?")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "atom?")){
     operand = eval(op->next, env);    
-    bool = operand->atom != NULL ? "True" : "False";
+    bool = get_atom(operand) != NULL ? "True" : "False";
     resultSexpr = newSexpr();
-    resultSexpr->atom=(char*)malloc(10);
-    strcpy(resultSexpr->atom,bool);
+    /*resultSexpr->atom=(char*)malloc(10);
+    strcpy(resultSexpr->atom,bool);*/
+    create_atom(resultSexpr, bool);
     return resultSexpr;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "null?")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "null?")){
     operand = eval(op->next, env);    
     bool = operand == NULL ? "True" : "False";
     resultSexpr = newSexpr();
-    resultSexpr->atom=(char*)malloc(10);
-    strcpy(resultSexpr->atom,bool);
+    /*resultSexpr->atom=(char*)malloc(10);
+    strcpy(resultSexpr->atom,bool);*/
+    create_atom(resultSexpr, bool);
     return resultSexpr;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "car")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "car")){
     operand = eval(op->next, env)->inner->next;    
     operand->next = NULL;
     return operand;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "cdr")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "cdr")){
     operand = eval(op->next, env)->inner->next->next;    
     return operand;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "cond")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "cond")){
     operand = op->next;
     while(operand){
-      if(!strcmp(eval(operand->inner->next, env)->atom, "True"))
+      if(!strcmp(get_atom(eval(operand->inner->next, env)), "True"))
         return eval(operand->inner->next->next, env);
       operand = operand->next;
     }
     return NULL;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "cons")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "cons")){
     operand = eval(op->next, env); 
     setSexpr = eval(op->next->next, env)->inner->next;
     resultSexpr = newSexpr();
@@ -222,16 +249,16 @@ Sexpr* eval(Sexpr* s, Env* env){
     resultSexpr->inner->next->next = setSexpr;
     return resultSexpr;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "quote")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "quote")){
     return op->next;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "define")){/*only sets for current inner env, so could have another with a different value in outer env*/
-    insertEnv(env, op->next->atom, op->next->next);
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "define")){/*only sets for current inner env, so could have another with a different value in outer env*/
+    insertEnv(env, get_atom(op->next), op->next->next);
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "set!")){/*set value for any environment, so set with inner and will find in outer and update that*/
-    setEnv(env, op->next->atom, op->next->next);
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "set!")){/*set value for any environment, so set with inner and will find in outer and update that*/
+    setEnv(env, get_atom(op->next), op->next->next);
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "begin")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "begin")){
     beginSexpr = op->next;
     beginSexprValue = NULL;
     while(beginSexpr){
@@ -240,16 +267,16 @@ Sexpr* eval(Sexpr* s, Env* env){
     }
     return beginSexprValue;
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "if")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "if")){
     if_sexpr = eval(op->next, env);
-    if(if_sexpr != NULL && if_sexpr->atom != NULL && !strcmp(if_sexpr->atom, "True")){      
+    if(if_sexpr != NULL && get_atom(if_sexpr) != NULL && !strcmp(get_atom(if_sexpr), "True")){      
       return eval(op->next->next, env);
     }
     else{      
       return eval(op->next->next->next, env);
     }
   }
-  else if(op->atom != NULL && !strcmp(op->atom, "lambda")){
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "lambda")){
     return s;
   }
   
@@ -315,7 +342,7 @@ Sexpr* eval(Sexpr* s, Env* env){
     lambda_arg_name = lambda_sexpr->inner->next->next->inner->next;
     lambda_arg_value = s->inner->next->next;
     while(lambda_arg_name && lambda_arg_value){
-      insertEnv(innerEnv, lambda_arg_name->atom, lambda_arg_value);
+      insertEnv(innerEnv, get_atom(lambda_arg_name), lambda_arg_value);
       lambda_arg_name = lambda_arg_name->next;
       lambda_arg_value = lambda_arg_value->next;
     }

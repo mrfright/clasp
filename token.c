@@ -9,6 +9,19 @@ static Token *tail = NULL;
 static char buf[BUFMAX] = "\0";/*start with empty string*/
 static int index = 0;/*point to where to put next character in array*/
 
+void printToken(Token* token){
+  if(token!=NULL){
+	while(token!=NULL){
+      printf("%s", token->p);
+      token=token->next;
+      if(token!=NULL)
+        printf("->");
+    }
+    printf("->");
+  }
+  printf("NULL\n");
+}
+
 void tokenize(char c){
 	if(head == NULL){/*if first time, initialize*/
 		head = newToken();

@@ -3,9 +3,10 @@ LFLAGS=-Wall -ansi -Wpedantic -Wextra -O $(DEBUG)
 CFLAGS=-c $(LFLAGS) 
 DEBUG=-g
 SOURCES=readline.c token.c parse.c tree.c env.c eval.c sexpr.c
-MAINSOURCES=main.c $(SOURCES)
 OBJECTS=$(SOURCES:.c=.o)
 HEADERS=$(SOURCES:.c=.h)
+MAINSOURCES=main.c $(SOURCES) $(HEADERS)
+TESTSOURCES=test.c $(SOURCES) $(HEADERS)
 MAINOBJECTS=$(MAINSOURCES:.c=.o)
 EXECUTABLE=clasp
 TEST=test
@@ -19,12 +20,12 @@ clean:
 #lint: $(SOURCES) $(HEADERS)
 #	splint $(SOURCES) $(HEADERS)
 
-$(TEST): $(TEST).o $(OBJECTS)
+$(TEST): $(TEST).o $(OBJECTS) $(TESTSOURCES)
 	$(CC) $(LFLAGS) -o $(TEST) $(TEST).o $(OBJECTS)
 
 .SUFFIXES: .o .c
 .c.o:
 	$(CC) $(CFLAGS) $<
 
-$(EXECUTABLE): $(MAINOBJECTS)
+$(EXECUTABLE): $(MAINOBJECTS) $(HEADERS)
 	$(CC) $(LFLAGS) $(MAINOBJECTS) -o $@
