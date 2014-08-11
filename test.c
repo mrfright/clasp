@@ -201,20 +201,20 @@ int main(void){
   printToken( tokenizeStr("1.0")->next);
 
   printSexpr(parseStr("(+ 1 3)"));
-  printf("\nshould be 6\n");
+  printf("\nresult of '(+ (+ 1 2) 3) should be 6\n");
   e = newEnv(NULL);
   printSexpr(eval(parseStr("(+ (+ 1 2) 3)"), e));
-  printf("\nshould be 9\n");
+  printf("\nresult of '(* (+ (- 2 1) 2) (/ 12 4))' should be 9\n");
   printSexpr(eval(parseStr("(* (+ (- 2 1) 2) (/ 12 4))"), e));
-  printf("\nshould be False\n");
+  printf("\nresult of '(> (+ (- 2 1) 2) (/ 12 4))' should be False\n");
   printSexpr(eval(parseStr("(> (+ (- 2 1) 2) (/ 12 4))"), e));
-  printf("\nshould be False\n");
+  printf("\nresult of '(>  (/ 12 4) (+ (- 2 1) 2))' should be False\n");
   printSexpr(eval(parseStr("(>  (/ 12 4) (+ (- 2 1) 2))"), e));
-  printf("\nshould be False\n");
+  printf("\nresult of '(< (+ (- 2 1) 2) (/ 12 4))' should be False\n");
   printSexpr(eval(parseStr("(< (+ (- 2 1) 2) (/ 12 4))"), e));
-  printf("\nshould be false\n");
+  printf("\nresult of '(<  (/ 12 4) (+ (- 2 1) 2))' should be false\n");
   printSexpr(eval(parseStr("(<  (/ 12 4) (+ (- 2 1) 2))"), e));
-  printf("\n should print out '(+ (- 2 1) 2)'\n");
+  printf("\nquote should print out '(+ (- 2 1) 2)'\n");
   printSexpr(eval(parseStr("(quote (+ (- 2 1) 2))"), e));
   
   printSexpr(eval(parseStr("(* 0.5 1.0)"), e));

@@ -16,8 +16,7 @@ Sexpr* parse(Token** tokenList){
   else { 
     sexpr = newSexpr();
     if(strcmp("(", (*tokenList)->p) == 0){/*make a new non-atom s-expression*/
-      sexpr->inner = newSexpr();
-      sexpr->inner->atom = "HEAD";
+      create_inner(sexpr);
       addTail = sexpr->inner;
 	  popToken = *tokenList;
 	  *tokenList = (*tokenList)->next;/*pop the '(' off*/

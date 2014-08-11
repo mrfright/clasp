@@ -108,26 +108,35 @@ Sexpr* copy_sexpr(Sexpr* s){
 }
 
 void printSexpr(Sexpr* sexpr){
+  Sexpr* innerSexpr;
+  char* space = "";
   if(sexpr == NULL){
     return;
   }
   if(get_atom(sexpr) != NULL)
-    printf(" %s ", get_atom(sexpr));
+    printf("%s", get_atom(sexpr));
   else{
     printf("(");
-    printSexpr(sexpr->inner->next);/*next to skip linked list head*/
+    innerSexpr = get_inner(sexpr);
+    while(innerSexpr != NULL){
+      printf(space);
+      space = " ";
+      printSexpr(innerSexpr);
+      innerSexpr = innerSexpr->next;
+    }
+    /*printSexpr(sexpr->inner->next);*next to skip linked list head*/
     printf(")");
   }
-  printf(" ");
-  printSexpr(sexpr->next);
+  /*printf(" ");
+  printSexpr(sexpr->next);*/
 }
 
 void deleteSexpr(Sexpr *s){
   if(s == NULL) return;
   if(get_atom(s) != NULL) free(get_atom(s));
   if(s->inner != NULL){
-    deleteSexpr(s->inner->next);/*not deleting s->inner since is "HEAD", free("HEAD) would crash it*/
-    free(s->inner);
+    deleteSexpr(s->inner);/*used to be s->inner->next since couldn't delete some "HEAD"*/
+    /*free(s->inner);needed this if we were skipping the inner because couldn't delete "HEAD"*/
   }
   deleteSexpr(s->next);
   free(s);

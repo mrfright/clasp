@@ -17,4 +17,5 @@ void create_atom(Sexpr* s, char* atom);
 Sexpr* copy_sexpr(Sexpr* s);
 void create_inner(Sexpr* s);
 Sexpr* newSexpr(void);
+Sexpr* get_inner(Sexpr* s);
 #endif /*SEXPR*/

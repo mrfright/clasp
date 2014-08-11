@@ -32,8 +32,6 @@ int is_float(char* s){
   return result;
 }
 
-
-
 void printEvalTree(Tree* tree){
   if(tree == NULL){
     printf("NULL\n");
@@ -55,37 +53,497 @@ void printEvalTree(Tree* tree){
   /*printf("%s done\n", tree->node);*/
 }
 
-/*
-void create_atom_from_int(Sexpr* s, int atom){
-  if(s->atom != NULL)
-    printf("\nSetting non-null atom to value %d\n", atom);
-  s->atom=(char*)malloc(20);
-  sprintf(s->atom,"%d",atom);
-}
-
-void create_atom_from_float(Sexpr* s, float atom){
-  if(s->atom != NULL)
-    printf("\nSetting non-null atom to value %f\n", atom);
-  s->atom=(char*)malloc(20);
-  sprintf(s->atom,"%f",atom);
-}
-
-void create_atom(Sexpr* s, char* atom){
-  if(s->atom != NULL)
-    printf("\nSetting non-null atom to value %s\n", atom);
-  s->atom=(char*)malloc(strlen(atom) + 10);
-  strcpy(s->atom,atom);
-}
-
-Sexpr* copy_sexpr(Sexpr* s){
-  Sexpr* copys = NULL;
-  if(s != NULL){
-    /*copy atom if there
-    /*copy inner if there
+Sexpr* add(Sexpr* s, Env* env){
+  Sexpr* operand_result;
+  Sexpr* operand;
+  float result;
+  Sexpr* resultSexpr;
+  
+  /*printf("\nadd\n");
+  printSexpr(s);*/
+  
+  if(s == NULL){
+    printf("\nadd operation on null Sexpr\n");
+    return NULL;
   }
-  return copys;
-}*/
+  result = 0.0;
+  
+  operand = get_inner(s);/*first inner is the operation*/
+  if(operand == NULL){
+    printf("\nadd function call on null inner which should be '+'\n");
+    return NULL;
+  }
+  operand = operand->next;/*set to first operand*/
 
+  while(operand != NULL){
+    operand_result = eval(operand, env);
+    if(!is_float(get_atom(operand_result)) && !is_int(get_atom(operand_result))){
+      printf("\ntrying to add non-number '%s'\n", get_atom(operand_result));
+      deleteSexpr(operand_result);
+      return NULL;
+    }
+    result += atof(get_atom(operand_result));
+    deleteSexpr(operand_result);
+    operand = operand->next;
+  }
+  
+  resultSexpr = newSexpr();
+  create_atom_from_float(resultSexpr, result);
+  return resultSexpr;
+}
+
+Sexpr* multiply(Sexpr* s, Env* env){
+  Sexpr* operand_result;
+  Sexpr* operand;
+  float result;
+  Sexpr* resultSexpr;
+  
+  
+  if(s == NULL){
+    printf("\nmultiply operation on null Sexpr\n");
+    return NULL;
+  }
+  result = 1.0;
+  
+  operand = get_inner(s);/*first inner is the operation*/
+  if(operand == NULL){
+    printf("\nmultiply function call on null inner which should be '*'\n");
+    return NULL;
+  }
+  operand = operand->next;/*set to first operand*/
+
+  while(operand != NULL){
+    operand_result = eval(operand, env);
+    if(!is_float(get_atom(operand_result)) && !is_int(get_atom(operand_result))){
+      printf("\ntrying to multiply non-number '%s'\n", get_atom(operand_result));
+      deleteSexpr(operand_result);
+      return NULL;
+    }
+    result *= atof(get_atom(operand_result));
+    deleteSexpr(operand_result);
+    operand = operand->next;
+  }
+  
+  resultSexpr = newSexpr();
+  create_atom_from_float(resultSexpr, result);
+  return resultSexpr;
+}
+
+Sexpr* subract(Sexpr* s, Env* env){
+  Sexpr* operand_result;
+  Sexpr* operand;
+  float result;
+  Sexpr* resultSexpr;  
+  
+  if(s == NULL){
+    printf("\nsub operation on null Sexpr\n");
+    return NULL;
+  }
+  result = 1.0;
+  
+  operand = get_inner(s);/*first inner is the operation*/
+  if(operand == NULL){
+    printf("\nsubtact function call on null inner which should be '-'\n");
+    return NULL;
+  }
+  operand = operand->next;/*set to first operand*/
+
+  operand_result = eval(operand, env);
+  if(!is_float(get_atom(operand_result)) && !is_int(get_atom(operand_result))){
+    printf("\ntrying to subract non-number '%s'\n", get_atom(operand_result));
+    deleteSexpr(operand_result);
+    return NULL;
+  }
+  result = atof(get_atom(operand_result));
+  deleteSexpr(operand_result);
+  operand = operand->next;
+  operand_result = eval(operand, env);
+  if(!is_float(get_atom(operand_result)) && !is_int(get_atom(operand_result))){
+    printf("\ntrying to subract non-number '%s'\n", get_atom(operand_result));
+    deleteSexpr(operand_result);
+    return NULL;
+  }
+  result -= atof(get_atom(operand_result));
+  deleteSexpr(operand_result);
+  resultSexpr = newSexpr();
+  create_atom_from_float(resultSexpr, result);
+  return resultSexpr;
+}
+
+
+Sexpr* division(Sexpr* s, Env* env){
+  Sexpr* operand_result;
+  Sexpr* operand;
+  float result;
+  Sexpr* resultSexpr;  
+  
+  if(s == NULL){
+    printf("\ndiv operation on null Sexpr\n");
+    return NULL;
+  }
+  result = 1.0;
+  
+  operand = get_inner(s);/*first inner is the operation*/
+  if(operand == NULL){
+    printf("\ndivision function call on null inner which should be '-'\n");
+    return NULL;
+  }
+  operand = operand->next;/*set to first operand*/
+
+  operand_result = eval(operand, env);
+  if(!is_float(get_atom(operand_result)) && !is_int(get_atom(operand_result))){
+    printf("\ntrying to divide non-number '%s'\n", get_atom(operand_result));
+    deleteSexpr(operand_result);
+    return NULL;
+  }
+  result = atof(get_atom(operand_result));
+  deleteSexpr(operand_result);
+  operand = operand->next;
+  operand_result = eval(operand, env);
+  if(!is_float(get_atom(operand_result)) && !is_int(get_atom(operand_result))){
+    printf("\ntrying to divide non-number '%s'\n", get_atom(operand_result));
+    deleteSexpr(operand_result);
+    return NULL;
+  }
+  result /= atof(get_atom(operand_result));
+  deleteSexpr(operand_result);
+  resultSexpr = newSexpr();
+  create_atom_from_float(resultSexpr, result);
+  return resultSexpr;
+}
+
+Sexpr* greaterThan(Sexpr* s, Env* env){
+  Sexpr* operand_result;
+  Sexpr* operand;
+  char* bool;
+  float result;
+  float result2;
+  Sexpr* resultSexpr;  
+  
+  
+  if(s == NULL){
+    printf("\ngreater than operation on null Sexpr\n");
+    return NULL;
+  }
+  
+  /*eval first, eval second, compare and make result, delete those two evals, return result*/
+  operand = get_inner(s);/*first inner is the operation*/
+  if(operand == NULL){
+    printf("\ngreater than function call on null inner which should be '>'\n");
+    return NULL;
+  }
+  operand = operand->next;
+  operand_result = eval(operand, env);
+  if(!is_float(get_atom(operand_result)) && !is_int(get_atom(operand_result))){
+    printf("\ntrying to greater-than compare non-number '%s'\n", get_atom(operand_result));
+    deleteSexpr(operand_result);
+    return NULL;
+  }
+  result = atof(get_atom(operand_result));
+  deleteSexpr(operand_result);
+  
+  operand = operand->next;
+  operand_result = eval(operand, env);
+  if(!is_float(get_atom(operand_result)) && !is_int(get_atom(operand_result))){
+    printf("\ntrying to greater-than compare non-number '%s'\n", get_atom(operand_result));
+    deleteSexpr(operand_result);
+    return NULL;
+  }
+  result2 = atof(get_atom(operand_result));
+  deleteSexpr(operand_result);
+
+    bool = result > result2 ? "True" : "False";
+    resultSexpr = newSexpr();
+    /*resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
+    strcpy(resultSexpr->atom,bool);*/
+    create_atom(resultSexpr, bool);
+    return resultSexpr;
+}
+
+Sexpr* lessThan(Sexpr* s, Env* env){
+  Sexpr* operand_result;
+  Sexpr* operand;
+  char* bool;
+  float result;
+  float result2;
+  Sexpr* resultSexpr;  
+  
+  
+  if(s == NULL){
+    printf("\nless than operation on null Sexpr\n");
+    return NULL;
+  }
+  
+  /*eval first, eval second, compare and make result, delete those two evals, return result*/
+  operand = get_inner(s);/*first inner is the operation*/
+  if(operand == NULL){
+    printf("\nless than function call on null inner which should be '<'\n");
+    return NULL;
+  }
+  operand = operand->next;
+  operand_result = eval(operand, env);
+  if(!is_float(get_atom(operand_result)) && !is_int(get_atom(operand_result))){
+    printf("\ntrying to less-than compare non-number '%s'\n", get_atom(operand_result));
+    deleteSexpr(operand_result);
+    return NULL;
+  }
+  result = atof(get_atom(operand_result));
+  deleteSexpr(operand_result);
+  
+  operand = operand->next;
+  operand_result = eval(operand, env);
+  if(!is_float(get_atom(operand_result)) && !is_int(get_atom(operand_result))){
+    printf("\ntrying to greater-than compare non-number '%s'\n", get_atom(operand_result));
+    deleteSexpr(operand_result);
+    return NULL;
+  }
+  result2 = atof(get_atom(operand_result));
+  deleteSexpr(operand_result);
+
+    bool = result < result2 ? "True" : "False";
+    resultSexpr = newSexpr();
+    /*resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
+    strcpy(resultSexpr->atom,bool);*/
+    create_atom(resultSexpr, bool);
+    return resultSexpr;
+}
+
+Sexpr* equal(Sexpr* s, Env* env){
+  Sexpr* operand;
+  Sexpr* result1;
+  Sexpr* result2;
+  Sexpr* resultSexpr;
+  char* bool;
+  /*!strcmp(get_atom(op), "+")*/
+  
+  
+  if(s == NULL){
+    printf("\nequal operation on null Sexpr\n");
+    return NULL;
+  }
+  
+  /*eval first, eval second, compare and make result, delete those two evals, return result*/
+  operand = get_inner(s);/*first inner is the operation*/
+  if(operand == NULL){
+    printf("\nequal function call on null inner which should be 'eq?'\n");
+    return NULL;
+  }
+  operand = operand->next;
+  
+  if(operand == NULL){
+    printf("\nequal function with no arguments\n");
+    return NULL;
+  }
+  
+  result1 = eval(operand, env);
+  operand = operand->next;
+  
+  if(operand == NULL){
+    printf("\nequal function with only one argument\n");
+    deleteSexpr(result1);
+    return NULL;
+  }
+  result2 = eval(operand, env);
+  
+  if(result1 != NULL && result2 != NULL){
+    if(get_atom(result1) != NULL && get_atom(result2) != NULL){
+      bool = !strcmp(get_atom(result1), get_atom(result2)) ? "True" : "False";
+    }
+    else if(get_atom(result1) == NULL && get_atom(result2) == NULL){
+      printf("\ncan only call equal on atoms for now\n");
+      bool = "False";
+    }
+    else bool = "False";/*one is NULL and other is not*/
+  }
+  else if(result1 == NULL && result2 == NULL) bool = "True";
+  else bool = "False";/*one is NULL while other is not*/
+  
+  deleteSexpr(result1);
+  deleteSexpr(result2);
+    
+  resultSexpr = newSexpr();
+  create_atom(resultSexpr, bool);
+  return resultSexpr;
+}
+
+Sexpr* is_atom(Sexpr* s, Env* env){
+  Sexpr* operand;
+  Sexpr* atom;
+  Sexpr* resultSexpr;
+  char* bool;
+  
+  if(s == NULL){
+    printf("\natom? operation on null Sexpr\n");
+    return NULL;
+  }
+  
+  /*eval first, eval second, compare and make result, delete those two evals, return result*/
+  operand = get_inner(s);/*first inner is the operation*/
+  if(operand == NULL){
+    printf("\natom? function call on null inner which should be 'atom?'\n");
+    return NULL;
+  }
+  operand = operand->next;
+  if(operand == NULL){
+    printf("\natom? called with NULL argument\n");
+    return NULL;
+  }
+  atom = eval(operand, env);
+  bool = get_atom(atom) != NULL ? "True" : "False";
+  deleteSexpr(atom);
+  
+  resultSexpr = newSexpr();
+  create_atom(resultSexpr, bool);
+  return resultSexpr;
+}
+
+
+Sexpr* is_null(Sexpr* s, Env* env){
+  Sexpr* operand;
+  Sexpr* atom;
+  Sexpr* resultSexpr;
+  char* bool;
+  
+  if(s == NULL){
+    printf("\nnull? operation on null Sexpr\n");
+    return NULL;
+  }
+  
+  /*eval first, eval second, compare and make result, delete those two evals, return result*/
+  operand = get_inner(s);/*first inner is the operation*/
+  if(operand == NULL){
+    printf("\nnull? function call on null inner which should be 'null?'\n");
+    return NULL;
+  }
+  operand = operand->next;
+  if(operand == NULL){
+    bool = "True";
+  }
+  
+  atom = eval(operand, env);
+  bool = atom == NULL ? "True" : "False";
+  deleteSexpr(atom);
+  
+  resultSexpr = newSexpr();
+  create_atom(resultSexpr, bool);
+  return resultSexpr;
+}
+
+Sexpr* car(Sexpr* s, Env* env){
+  /*
+  eval the argument, set to var, copy the first member of that thing, delete that eval result, return that copied new member
+  */
+  Sexpr* operand;
+  Sexpr* getCarFromHere;
+  Sexpr* resultSexpr;
+  
+  if(s == NULL){
+    printf("\ncar operation on null Sexpr\n");
+    return NULL;
+  }
+  
+  /*eval first, eval second, compare and make result, delete those two evals, return result*/
+  operand = get_inner(s);/*first inner is the operation*/
+  if(operand == NULL){
+    printf("\ncar function call on null inner which should be 'car'\n");
+    return NULL;
+  }
+  operand = operand->next;
+  if(operand == NULL){
+    printf("\ntried to car a null sexpr\n");
+    return NULL;
+  }
+  
+  getCarFromHere = eval(operand, env);
+  
+  
+  resultSexpr = copy_sexpr(get_inner(getCarFromHere));
+  deleteSexpr(getCarFromHere);
+  return resultSexpr;
+}
+
+Sexpr* cdr(Sexpr* s, Env* env){
+  /*
+  eval the argument, set to var, set its inner first to its inner second, delete that first, return that new thing
+  */
+  Sexpr* operand;
+  Sexpr* removedCdr;
+  Sexpr* resultSexpr;
+  
+  if(s == NULL){
+    printf("\ncdr operation on null Sexpr\n");
+    return NULL;
+  }
+  
+  /*eval first, eval second, compare and make result, delete those two evals, return result*/
+  operand = get_inner(s);/*first inner is the operation*/  
+  if(operand == NULL){
+    printf("\ncdr function call on null inner which should be 'cdr'\n");
+    return NULL;
+  }
+  operand = operand->next;
+  if(operand == NULL){
+    printf("\ntried to cdr a null sexpr\n");
+    return NULL;
+  }
+  
+  resultSexpr = eval(operand, env);
+  printf("\nresultSexpr first time in cdr\n");
+  printSexpr(resultSexpr);
+  removedCdr = get_inner(resultSexpr);
+  
+  resultSexpr->inner->next = get_inner(resultSexpr)->next;
+  removedCdr->next = NULL;
+  deleteSexpr(removedCdr);
+  
+  return resultSexpr;
+}
+
+Sexpr* cond(Sexpr* s, Env* env){
+  Sexpr* operand;
+  Sexpr* clause;
+  Sexpr* predicate;
+  Sexpr* predicate_value;
+  
+  if(s == NULL){
+    printf("\ncond operation on null Sexpr\n");
+    return NULL;
+  }
+  
+  operand = get_inner(s);/*first inner is the operation*/  
+  if(operand == NULL){
+    printf("\ncond function call on null inner which should be 'cond'\n");
+    return NULL;
+  }
+  
+  /*while next not null, check if that one predicate evals to true then eval it's value*/
+  clause = operand->next;
+  while(clause != NULL){
+    predicate = get_inner(clause);
+    if(predicate == NULL){
+      printf("\nNULL predicate in cond operation\n");
+      return NULL;
+    }
+    predicate_value = eval(predicate, env);
+    
+    /*if predval == true then return its evaled expression (no copy, just return that eval since that's new anyway)*/    
+    if(get_atom(predicate_value) != NULL && !strcmp(get_atom(predicate_value), "True")){
+      deleteSexpr(predicate_value);
+      return eval(predicate->next, env);
+    }
+    deleteSexpr(predicate_value);
+    clause = clause->next;
+  }
+  
+  printf("\ncond operation with no predicates evaluating to true, returning NULL\n");
+  return NULL;
+}
+
+/*each call to eval means a new sexpr, so delete after it gets used*/
+/*if sexpr isn't one passed in or the one to be returned, make sure it's deleted*/
+/*don't delete the sexpr passed into the eval func (responsibility of outer)*/
+/*all return values from eval should be assigned to a variable, not passed directly into a func, so can be deleted*/
+/*don't directly return an input, to outer it should be considered different (i.e. outer could delete sexpr from an eval while not touching its argument)*/
 Sexpr* eval(Sexpr* s, Env* env){
   Sexpr* op;
   Sexpr* operand;
@@ -94,164 +552,91 @@ Sexpr* eval(Sexpr* s, Env* env){
   Sexpr* lambda_arg_value;
   Sexpr* lambda_sexpr;
   Sexpr* setSexpr;
-  Sexpr* tempSetSexpr;
   Sexpr* beginSexpr;
   Sexpr* beginSexprValue;
   Sexpr* if_sexpr;
-  float result;
-  float result2;
-  char* bool;
   Env* innerEnv;
-  Env* printEnv;
+  
+  if(s == NULL){
+    printf("\neval on NULL\n");
+    return NULL;
+  }
   
   
   if(get_atom(s) != NULL){
     if(is_int(get_atom(s)) || is_float(get_atom(s)))
-      return s;
+      return copy_sexpr(s);/*may have to make this a copy of s, since outer should be deleting it*/
+    else if(!strcmp(get_atom(s), "True") || !strcmp(get_atom(s), "False")){
+      return copy_sexpr(s);
+    }
     else{
-      return eval(findEnv(env, get_atom(s)), env->inner) ;
+      return eval(findEnv(env, get_atom(s)), env->inner) ;/*?findEnv returns a copy?*/
     }
   }
-  /*TODO NULL checks!*/
-  op = s->inner->next;
   
-  if(get_atom(op) != NULL && !strcmp(get_atom(op), "+")){
-    operand = eval(op->next, env);
-    result = atof(get_atom(operand));
-    operand = eval(op->next->next, env);
-    result += atof(get_atom(operand));
-    resultSexpr = newSexpr();
-    /*resultSexpr->atom=(char*)malloc(strlen(get_atom(operand)) + 10);
-    sprintf(get_atom(resultSexpr),"%f",result);*/
-    create_atom_from_float(resultSexpr, result);
-    return resultSexpr;
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "-")){
-    operand = eval(op->next, env);
-    result = atof(get_atom(operand));
-    operand = eval(op->next->next, env);
-    result -= atof(get_atom(operand));
-    resultSexpr = newSexpr();
-    /*resultSexpr->atom=(char*)malloc(strlen(get_atom(operand)) + 10);
-    sprintf(get_atom(resultSexpr),"%f",result);*/
-    create_atom_from_float(resultSexpr, result);
-    return resultSexpr;
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "*")){
-    operand = eval(op->next, env);
-    result = atof(get_atom(operand));
-    operand = eval(op->next->next, env);
-    result *= atof(get_atom(operand));
-    resultSexpr = newSexpr();
-    /*resultSexpr->atom=(char*)malloc(strlen(get_atom(operand)) + 10);
-    sprintf(resultSexpr->atom,"%f",result);*/
-    create_atom_from_float(resultSexpr, result);
-    return resultSexpr;
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "/")){
-    operand = eval(op->next, env);
-    result = atof(get_atom(operand));
-    operand = eval(op->next->next, env);
-    result /= atof(get_atom(operand));
-    resultSexpr = newSexpr();
-    /*resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
-    sprintf(resultSexpr->atom,"%f",result);*/
-    create_atom_from_float(resultSexpr, result);
-    return resultSexpr;
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), ">")){
-    printSexpr(op->next);
-    operand = eval(op->next, env);
-    result = atof(get_atom(operand));
-    operand = eval(op->next->next, env);
-    result2 = atof(get_atom(operand));
-    bool = result > result2 ? "True" : "False";
-    resultSexpr = newSexpr();
-    /*resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
-    strcpy(resultSexpr->atom,bool);*/
-    create_atom(resultSexpr, bool);
-    return resultSexpr;
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "<")){
-    operand = eval(op->next, env);
-    result = atof(get_atom(operand));
-    operand = eval(op->next->next, env);
-    result2 = atof(get_atom(operand));
-    bool = result < result2 ? "True" : "False";
-    resultSexpr = newSexpr();
-    /*resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
-    strcpy(resultSexpr->atom,bool);*/
-    create_atom(resultSexpr, bool);
-    return resultSexpr;
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "eq?")){
-    operand = eval(op->next, env);
-    /*shouldn't be comparing floats*/
-    if(get_atom(operand) != NULL){
-      result = atof(get_atom(operand));
-      operand = eval(op->next->next, env);
-      result2 = atof(get_atom(operand));
-      bool = result == result2 ? "True" : "False";
-    }
-    else
-      bool = operand->inner->next == NULL && op->next->next->inner->next == NULL ? "True" : "False";
-    
-    resultSexpr = newSexpr();
-    /*resultSexpr->atom=(char*)malloc(strlen(operand->atom) + 10);
-    strcpy(resultSexpr->atom,bool);*/
-    create_atom(resultSexpr, bool);
-    return resultSexpr;
-  }
+  /*TODO NULL checks!*/
+  op = get_inner(s);
+  
+  /*put if get_atom!=NULL check outside all here*/
+  if(get_atom(op) != NULL && !strcmp(get_atom(op), "+"))
+    return add(s, env);  
+  
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "-"))
+    return subract(s, env);
+
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "*"))
+    return multiply(s, env);
+  
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "/"))
+    return division(s, env);
+  
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), ">"))
+    return greaterThan(s, env);
+  
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "<"))
+    return lessThan(s, env);
+  
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "eq?"))
+    return equal(s, env);
+  /*else if(get_atom(op) != NULL && !strcmp(get_atom(op), "="))
+    return equal(s, env);*/
   else if(get_atom(op) != NULL && !strcmp(get_atom(op), "atom?")){
-    operand = eval(op->next, env);    
-    bool = get_atom(operand) != NULL ? "True" : "False";
-    resultSexpr = newSexpr();
-    /*resultSexpr->atom=(char*)malloc(10);
-    strcpy(resultSexpr->atom,bool);*/
-    create_atom(resultSexpr, bool);
-    return resultSexpr;
+    return  is_atom(s, env);
   }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "null?")){
-    operand = eval(op->next, env);    
-    bool = operand == NULL ? "True" : "False";
-    resultSexpr = newSexpr();
-    /*resultSexpr->atom=(char*)malloc(10);
-    strcpy(resultSexpr->atom,bool);*/
-    create_atom(resultSexpr, bool);
-    return resultSexpr;
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "car")){
-    operand = eval(op->next, env)->inner->next;    
-    operand->next = NULL;
-    return operand;
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "cdr")){
-    operand = eval(op->next, env)->inner->next->next;    
-    return operand;
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "cond")){
-    operand = op->next;
-    while(operand){
-      if(!strcmp(get_atom(eval(operand->inner->next, env)), "True"))
-        return eval(operand->inner->next->next, env);
-      operand = operand->next;
-    }
-    return NULL;
-  }
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "null?"))
+    return is_null(s, env);
+
+/*
+  (car '(1 2 3))
+=> 1
+   (cdr '(1 2 3))
+=> (2 3)
+
+*/
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "car"))
+    return car(s, env);
+
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "cdr"))
+    return cdr(s, env);
+
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "cond"))
+    return cond(s, env);
+/*
+  (cons 1 '(2 3))
+=> (1 2 3)
+*/
   else if(get_atom(op) != NULL && !strcmp(get_atom(op), "cons")){
     operand = eval(op->next, env); 
     setSexpr = eval(op->next->next, env)->inner->next;
     resultSexpr = newSexpr();
-    resultSexpr->inner = newSexpr();
-    resultSexpr->inner->atom=(char*)malloc(10);
-    strcpy(resultSexpr->inner->atom, "HEAD");
+    create_inner(resultSexpr);
     resultSexpr->inner->next = operand;
     resultSexpr->inner->next->next = setSexpr;
     return resultSexpr;
   }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "quote")){
-    return op->next;
-  }
+  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "quote"))
+    return copy_sexpr(op->next);
+  
   else if(get_atom(op) != NULL && !strcmp(get_atom(op), "define")){/*only sets for current inner env, so could have another with a different value in outer env*/
     insertEnv(env, get_atom(op->next), op->next->next);
   }

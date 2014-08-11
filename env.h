@@ -13,4 +13,5 @@ struct env{
 Env* newEnv(Env* inner);
 Sexpr* findEnv(Env* env, char* node);
 void insertEnv(Env* env, char* node, Sexpr* value);
+void setEnv(Env* env, char* node, Sexpr* value);
 #endif /*ENV*/
