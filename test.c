@@ -65,7 +65,6 @@ Tree* findNode(char* node){
 }
 
 
-
 int main(void){
   char test_read_val[] =  "test read line\r\nanother line\r\n\r\n";
   
@@ -269,5 +268,23 @@ int main(void){
   printSexpr(sexpr);
   printf("\ncopy of '(one (two)three four)'\n");
   printSexpr(copy_sexpr(parseStr("(one (two)three four)")));
+  
+  
+  assert(!strcmp(eval(parseStr("(cond (True 1))"), e)->atom, "1") && "(cond (True 1)) was not '1'");
+  assert(!strcmp(eval(parseStr("(cond (True 1) (False 2))"), e)->atom, "1") && "(cond (True 1) (False 2)) '1'");
+  assert(!strcmp(eval(parseStr("(cond (False 1) (True 2))"), e)->atom, "2") && "(cond (False 1) (True 2)) was not '2'");
+  assert(!strcmp(eval(parseStr("(cond ((> 2 3) 1) ((< 2 3) 2))"), e)->atom, "2") && "(cond ((> 2 3) 1) ((< 2 3) 2)) was not '2'");
+  assert(!strcmp(eval(parseStr("(cond ((> 3 2) 1) ((> 2 1) 2))"), e)->atom, "1") && "(cond ((> 3 2) 1) ((> 2 1) 2)) was not '1'");
+  assert(!strcmp(eval(parseStr("(cond (False 1) (else 2))"), e)->atom, "2") && "(cond (False 1) (else 2)) was not '2'");
+  assert(!strcmp(eval(parseStr("(cond (True 1 2 3))"), e)->atom, "3") && "(cond (True 1 2 3)) was not '3'");
+  /*
+
+(cond (False 1) (else 2))
+2
+*/
+  
+  
+  
+  
   return  0;
 }

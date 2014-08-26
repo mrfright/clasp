@@ -129,7 +129,7 @@ Sexpr* multiply(Sexpr* s, Env* env){
   return resultSexpr;
 }
 
-Sexpr* subract(Sexpr* s, Env* env){
+Sexpr* subtract(Sexpr* s, Env* env){
   Sexpr* operand_result;
   Sexpr* operand;
   float result;
@@ -504,6 +504,8 @@ Sexpr* cond(Sexpr* s, Env* env){
   Sexpr* clause;
   Sexpr* predicate;
   Sexpr* predicate_value;
+  Sexpr* expression;
+  Sexpr* expression_result;
   
   if(s == NULL){
     printf("\ncond operation on null Sexpr\n");
@@ -524,12 +526,22 @@ Sexpr* cond(Sexpr* s, Env* env){
       printf("\nNULL predicate in cond operation\n");
       return NULL;
     }
+    
     predicate_value = eval(predicate, env);
     
     /*if predval == true then return its evaled expression (no copy, just return that eval since that's new anyway)*/    
-    if(get_atom(predicate_value) != NULL && !strcmp(get_atom(predicate_value), "True")){
+    if(get_atom(predicate_value) != NULL && (!strcmp(get_atom(predicate_value), "True") || !strcmp(get_atom(predicate_value), "else"))){
       deleteSexpr(predicate_value);
-      return eval(predicate->next, env);
+      
+      expression = predicate->next;
+      expression_result = NULL;
+      while(expression != NULL){
+        deleteSexpr(expression_result);
+        expression_result = eval(expression, env);
+        expression = expression->next;
+      }        
+      
+      return expression_result;
     }
     deleteSexpr(predicate_value);
     clause = clause->next;
@@ -539,6 +551,45 @@ Sexpr* cond(Sexpr* s, Env* env){
   return NULL;
 }
 
+Sexpr* cons(Sexpr* s, Env* env){
+  Sexpr* operator;
+  Sexpr* first_eval;
+  Sexpr* second_eval;
+  Sexpr* result_sexpr;
+  
+  if(s == NULL){
+    printf("\ncons operation on null Sexpr\n");
+    return NULL;
+  }
+  
+  operator = get_inner(s);/*first inner is the operation*/  
+  if(operator == NULL){
+    printf("\ncons function call on null inner which should be 'cons'\n");
+    return NULL;
+  }
+  
+  first_eval = eval(operator->next, env);
+  /*printf("\nfirst eval:");
+  printSexpr(first_eval);*/
+  second_eval = eval(operator->next->next, env);
+  /*printf("\nsecond eval:");
+  printSexpr(second_eval);
+  */
+  result_sexpr = newSexpr();
+  create_inner(result_sexpr);
+  result_sexpr->inner->next = first_eval;
+  first_eval->next = get_inner(second_eval);
+  second_eval->inner->next = NULL;
+  deleteSexpr(second_eval);
+  
+  return result_sexpr;
+  
+  /*eval first, eval second.  
+  make new sexpr, set first inner to first evaled, set first evaled's next to first inner of second evaled
+  make second outer evaled's inner point away to null, delete second outer evaled
+  */
+}
+
 /*each call to eval means a new sexpr, so delete after it gets used*/
 /*if sexpr isn't one passed in or the one to be returned, make sure it's deleted*/
 /*don't delete the sexpr passed into the eval func (responsibility of outer)*/
@@ -546,17 +597,15 @@ Sexpr* cond(Sexpr* s, Env* env){
 /*don't directly return an input, to outer it should be considered different (i.e. outer could delete sexpr from an eval while not touching its argument)*/
 Sexpr* eval(Sexpr* s, Env* env){
   Sexpr* op;
-  Sexpr* operand;
-  Sexpr* resultSexpr;
   Sexpr* lambda_arg_name;
   Sexpr* lambda_arg_value;
   Sexpr* lambda_sexpr;
-  Sexpr* setSexpr;
+
   Sexpr* beginSexpr;
   Sexpr* beginSexprValue;
   Sexpr* if_sexpr;
   Env* innerEnv;
-  
+  Sexpr* result_sexpr;
   if(s == NULL){
     printf("\neval on NULL\n");
     return NULL;
@@ -566,7 +615,7 @@ Sexpr* eval(Sexpr* s, Env* env){
   if(get_atom(s) != NULL){
     if(is_int(get_atom(s)) || is_float(get_atom(s)))
       return copy_sexpr(s);/*may have to make this a copy of s, since outer should be deleting it*/
-    else if(!strcmp(get_atom(s), "True") || !strcmp(get_atom(s), "False")){
+    else if(!strcmp(get_atom(s), "True") || !strcmp(get_atom(s), "False") || !strcmp(get_atom(s), "else")){
       return copy_sexpr(s);
     }
     else{
@@ -577,161 +626,151 @@ Sexpr* eval(Sexpr* s, Env* env){
   /*TODO NULL checks!*/
   op = get_inner(s);
   
-  /*put if get_atom!=NULL check outside all here*/
-  if(get_atom(op) != NULL && !strcmp(get_atom(op), "+"))
-    return add(s, env);  
-  
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "-"))
-    return subract(s, env);
+  if(get_atom(get_inner(s)) != NULL){
+    if(!strcmp(get_atom(op), "+"))
+      return add(s, env);  
 
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "*"))
-    return multiply(s, env);
-  
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "/"))
-    return division(s, env);
-  
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), ">"))
-    return greaterThan(s, env);
-  
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "<"))
-    return lessThan(s, env);
-  
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "eq?"))
-    return equal(s, env);
-  /*else if(get_atom(op) != NULL && !strcmp(get_atom(op), "="))
-    return equal(s, env);*/
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "atom?")){
-    return  is_atom(s, env);
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "null?"))
-    return is_null(s, env);
+    else if(!strcmp(get_atom(op), "-"))
+      return subtract(s, env);
 
-/*
-  (car '(1 2 3))
-=> 1
-   (cdr '(1 2 3))
-=> (2 3)
+    else if(!strcmp(get_atom(op), "*"))
+      return multiply(s, env);
 
-*/
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "car"))
-    return car(s, env);
+    else if(!strcmp(get_atom(op), "/"))
+      return division(s, env);
 
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "cdr"))
-    return cdr(s, env);
+    else if(!strcmp(get_atom(op), ">"))
+      return greaterThan(s, env);
 
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "cond"))
-    return cond(s, env);
-/*
-  (cons 1 '(2 3))
-=> (1 2 3)
-*/
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "cons")){
-    operand = eval(op->next, env); 
-    setSexpr = eval(op->next->next, env)->inner->next;
-    resultSexpr = newSexpr();
-    create_inner(resultSexpr);
-    resultSexpr->inner->next = operand;
-    resultSexpr->inner->next->next = setSexpr;
-    return resultSexpr;
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "quote"))
-    return copy_sexpr(op->next);
-  
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "define")){/*only sets for current inner env, so could have another with a different value in outer env*/
-    insertEnv(env, get_atom(op->next), op->next->next);
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "set!")){/*set value for any environment, so set with inner and will find in outer and update that*/
-    setEnv(env, get_atom(op->next), op->next->next);
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "begin")){
-    beginSexpr = op->next;
-    beginSexprValue = NULL;
-    while(beginSexpr){
-      beginSexprValue = eval(beginSexpr, env);
-      beginSexpr = beginSexpr->next;
+    else if(!strcmp(get_atom(op), "<"))
+      return lessThan(s, env);
+
+    else if(!strcmp(get_atom(op), "eq?"))
+      return equal(s, env);
+    /*else if(get_atom(op) != NULL && !strcmp(get_atom(op), "="))
+      return equal(s, env);*/
+    else if(!strcmp(get_atom(op), "atom?"))
+      return  is_atom(s, env);
+
+    else if(!strcmp(get_atom(op), "null?"))
+      return is_null(s, env);
+
+    else if(!strcmp(get_atom(op), "car"))
+      return car(s, env);
+
+    else if(!strcmp(get_atom(op), "cdr"))
+      return cdr(s, env);
+
+    else if(!strcmp(get_atom(op), "cond"))
+      return cond(s, env);
+
+    else if(!strcmp(get_atom(op), "cons"))
+      return cons(s, env);
+
+    else if(!strcmp(get_atom(op), "quote"))
+      return copy_sexpr(op->next);
+
+    else if(!strcmp(get_atom(op), "define")){/*only sets for current inner env, so could have another with a different value in outer env*/
+      insertEnv(env, get_atom(op->next), op->next->next);
     }
-    return beginSexprValue;
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "if")){
-    if_sexpr = eval(op->next, env);
-    if(if_sexpr != NULL && get_atom(if_sexpr) != NULL && !strcmp(get_atom(if_sexpr), "True")){      
-      return eval(op->next->next, env);
+    else if(!strcmp(get_atom(op), "set!")){/*set value for any environment, so set with inner and will find in outer and update that*/
+      setEnv(env, get_atom(op->next), op->next->next);
     }
-    else{      
-      return eval(op->next->next->next, env);
+    else if(!strcmp(get_atom(op), "begin")){
+      beginSexpr = op->next;
+      beginSexprValue = NULL;
+      while(beginSexpr){
+        deleteSexpr(beginSexprValue);
+        beginSexprValue = eval(beginSexpr, env);
+        beginSexpr = beginSexpr->next;
+      }
+      return beginSexprValue;
     }
-  }
-  else if(get_atom(op) != NULL && !strcmp(get_atom(op), "lambda")){
-    return s;
-  }
-  
-  else{/*assume the first thing is a lambda expression*/    
-    /*
-    ((lambda (a b) (+ a b)) 5 6)
-    
-    s->inner
-    sexpr with atom='HEAD'
-    s->inner->atom = "HEAD"
-    
-    s->inner->next
-    sexpr (lambda (a b) (+ a b))
-    
-    s->inner->next->inner
-    sexpr with atom ="lambda"
-    
-    s->inner->next->inner->atom = "HEAD"
-    
-    s->inner->next->inner->next->atom = "lambda"
-    
-    s->inner->next->inner->next->next
-    sexpr with arg names
-    
-    s->inner->next->inner->next->next->inner
-    sexpr of arg names (a b)
-    
-     s->inner->next->inner->next->next->inner->atom
-     "HEAD" of arg name sexpr
-     
-     s->inner->next->inner->next->next->inner->next->atom
-     "a" arg name
-     
-     s->inner->next->inner->next->next->inner->next->next->atom
-     "b" arg name
-    
-    
-    
-    s->inner->next->inner->next->next->next
-    sexpr of thing to eval
-    
-     s->inner->next->inner->next->next->next->inner
-    inner sexpr of thing to eval
-    
-    s->inner->next->inner->next->next->next->inner->atom
-    "HEAD" of sexpr to eval
-  
-    s->inner->next->inner->next->next->next->inner->next->atom
-    "+" operator
-    
-    s->inner->next->next->atom
-    "5"
-    */
-  
-    /*make a new inner env to eval*/
-    lambda_sexpr = eval(s->inner->next, env);
-    
-    /*if(lambda_sexpr->inner->next->atom == NULL || strcmp(lambda_sexpr->inner->next->atom, "lambda"))
-      printf("\nnot lambda as expected?\n");
-    else
-      printf("\nlambda as expected\n");*/
-    innerEnv = newEnv(env);
-    lambda_arg_name = lambda_sexpr->inner->next->next->inner->next;
-    lambda_arg_value = s->inner->next->next;
-    while(lambda_arg_name && lambda_arg_value){
-      insertEnv(innerEnv, get_atom(lambda_arg_name), lambda_arg_value);
-      lambda_arg_name = lambda_arg_name->next;
-      lambda_arg_value = lambda_arg_value->next;
+    else if(!strcmp(get_atom(op), "if")){
+      if_sexpr = eval(op->next, env);
+      if(if_sexpr != NULL && get_atom(if_sexpr) != NULL && !strcmp(get_atom(if_sexpr), "True")){  
+        deleteSexpr(if_sexpr);
+        return eval(op->next->next, env);
+      }
+      else{     
+        deleteSexpr(if_sexpr);
+        return eval(op->next->next->next, env);
+      }
     }
-    return eval(lambda_sexpr->inner->next->next->next, innerEnv);
+    else if(!strcmp(get_atom(op), "lambda")){
+      return s;
+    }
+
+    else{/*assume the first thing is a lambda expression*/    
+      /*
+      ((lambda (a b) (+ a b)) 5 6)
+
+      s->inner
+      sexpr with atom='HEAD'
+      s->inner->atom = "HEAD"
+
+      s->inner->next
+      sexpr (lambda (a b) (+ a b))
+
+      s->inner->next->inner
+      sexpr with atom ="lambda"
+
+      s->inner->next->inner->atom = "HEAD"
+
+      s->inner->next->inner->next->atom = "lambda"
+
+      s->inner->next->inner->next->next
+      sexpr with arg names
+
+      s->inner->next->inner->next->next->inner
+      sexpr of arg names (a b)
+
+       s->inner->next->inner->next->next->inner->atom
+       "HEAD" of arg name sexpr
+
+       s->inner->next->inner->next->next->inner->next->atom
+       "a" arg name
+
+       s->inner->next->inner->next->next->inner->next->next->atom
+       "b" arg name
+
+
+
+      s->inner->next->inner->next->next->next
+      sexpr of thing to eval
+
+       s->inner->next->inner->next->next->next->inner
+      inner sexpr of thing to eval
+
+      s->inner->next->inner->next->next->next->inner->atom
+      "HEAD" of sexpr to eval
+
+      s->inner->next->inner->next->next->next->inner->next->atom
+      "+" operator
+
+      s->inner->next->next->atom
+      "5"
+      */
+
+      /*make a new inner env to eval*/
+      lambda_sexpr = eval(s->inner->next, env);
+
+      /*if(lambda_sexpr->inner->next->atom == NULL || strcmp(lambda_sexpr->inner->next->atom, "lambda"))
+        printf("\nnot lambda as expected?\n");
+      else
+        printf("\nlambda as expected\n");*/
+      innerEnv = newEnv(env);
+      lambda_arg_name = lambda_sexpr->inner->next->next->inner->next;
+      lambda_arg_value = s->inner->next->next;
+      while(lambda_arg_name && lambda_arg_value){
+        insertEnv(innerEnv, get_atom(lambda_arg_name), lambda_arg_value);
+        lambda_arg_name = lambda_arg_name->next;
+        lambda_arg_value = lambda_arg_value->next;
+      }
+      return eval(lambda_sexpr->inner->next->next->next, innerEnv);
+      /*deleteSexpr(lambda_sexpr);
+      return result_sexpr;*/
+    }
   }
   return NULL;
 }
