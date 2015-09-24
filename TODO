@@ -1,0 +1,57 @@
+tokenize doesn't use globals
+
+parse uses non-global tokenize
+
+parse doesn't use globals
+
+
+
+things I'll learned
+I see why objects, would have been handy tying functions to data, had to have duplicate of a function but referenced one thing instead of another.
+learned about environment and scope
+didn't get eval  or was really hard.   but python is capable of lambda functions while c isn't.  So if I can't pass around first class functions in c, what do I do?  nothing.
+
+somethings are succinct but can totally confuse other programmers, such as while(c=*s++) to go through a null terminated array or something.
+
+don't use globals.  programming 20 years, 10 of those professionally, I thought I could get away with it because this is a small personal project.  Making lots of changes to correct that.  I think the common reason to not use globals is their not safe, different parts of code could change the global when you don't expect.  But I found another reason, refering to just that one thing is a problem when you come to a situation where now you want to have that function refer to different things.
+
+don't have dynamic types.  Python had sexpr=(an integer) or sexpr=(a float) or sexpr=(a complex sexpr) or sexpr=(a string for the atom), but can't do that in c (or c# as I tried writting this in before.)  Tried to have different types that inheret when doing in c# so I could treat everything as a sexpr.  more types was more complicated.  know what's less complicated? not having types.  sexpr now has a pointer to a string or other sexprs.  If string pointer isn't null I know it's an atom, if not then non-atom sexpr.  No need to distinguish between int, float, or other string at parse time, keep it a string then only try to turn into a number at eval time when a function expects a number or whatever.
+
+
+
+when writing up, brief explanation, overview, but for details point to other posts maybe, meat should be my thoughts on diff.
+
+note how people say python has dynamic types, built in hashes, etc.  but show that wasn't really hard for me to make, not that many more lines of code.
+
+can define a function with something that's undefined, but ok since not evaluated until run, so can define later
+
+had atom then return findenv(), but then if I had
+(> x 0), and x was some other expression, then I would try to compare
+(> (- x 1) 0) which isn't an atom, so would fail
+
+tried 
+eval(s, env)
+  atom then return eval(findenv(), env)
+
+but then that infinite looped because (> x 0) found x in the env, but that was defined in terms of x which evaled in terms of x, etc.
+
+sure that was defined in terms of x, but that x was in terms of the outer so 
+
+eval(s, env)
+  atom then return eval(findenv(), env->inner)
+
+which worked!
+
+what i think is some cool code, but unclear to someone not familiar, something that can happen in c with esoteric code
+
+int is_int(char* s){
+  int result = 0;
+  char c;
+  if(*s == '-')
+    s++;
+  while(isdigit(c=*s++))
+    result = 1;
+  return c ? 0 : result;
+}
+
+
